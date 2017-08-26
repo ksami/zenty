@@ -23,18 +23,29 @@
             {name: "glass", text: "GLSS", times: 2}
         ];
 
+        var PLAYER_TYPES = [
+            {name: "default", text: "", times: -1},
+            {name: "player 1", text: "P1", times: 1},
+            {name: "player 2", text: "P2", times: 1},
+            {name: "player 3", text: "P3", times: 1},
+            {name: "player 4", text: "P4", times: 1}
+        ];
+
         main();
 
         function main() {
             var root = document.getElementById("root");
             var map = generateMap(TILE_TYPES, MAP_WIDTH, MAP_HEIGHT);
             var resources = generateMap(RESOURCE_TYPES, MAP_WIDTH, MAP_HEIGHT);
+            var players = generateMap(PLAYER_TYPES, MAP_WIDTH, MAP_HEIGHT, [map, resources]);
 
-            root.innerHTML = generateTable(map, resources);
+            root.innerHTML = generateTable(map, resources, players);
         }
 
-        function generateMap(types, width, height) {
+        function generateMap(types, width, height, collisionMaps) {
             var map = [];
+            var colMaps = collisionMaps || [];
+
             for(var i=0; i<height; i++) {
                 var row = [];
                 for(var j=0; j<width; j++) {
@@ -47,7 +58,7 @@
                 for(var j=0; j<types[index].times; j++) {
                     // Get random empty tile
                     var tile = getRandomTile(width, height);
-                    while(map[tile.x][tile.y] !== 0) {
+                    while(map[tile.x][tile.y] !== 0 || colMaps.some(m => m[tile.x][tile.y] !== 0)) {
                         tile = getRandomTile(width, height);
                     }
                     map[tile.x][tile.y] = index;
@@ -65,14 +76,18 @@
         }
 
         // Generate HTML table from equal sized 2D arrays
-        function generateTable(map, resources) {
+        function generateTable(map, resources, players) {
             var table = "<table style='border-collapse: collapse; text-align: center;'>";
             for(var row=0; row<map.length; row++) {
                 table += "<tr>";
                 for(var col=0; col<map[row].length; col++) {
                     var tile = TILE_TYPES[map[row][col]];
                     var resource = RESOURCE_TYPES[resources[row][col]];
-                    table += "<td style='background:" + tile.color + ";border: 1px solid; width: 50px; height: 50px;'>" + resource.text + "</td>";
+                    var player = PLAYER_TYPES[players[row][col]];
+                    table += "<td style='background:" + tile.color + ";border: 1px solid; width: 50px; height: 50px;'>"
+                    table += resource.text;
+                    table += "<br/>" + player.text;
+                    table += "</td>";
                 }
                 table += "</tr>";
             }
