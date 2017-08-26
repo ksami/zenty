@@ -1,0 +1,67 @@
+<html>
+<body>
+    <div id="root">
+    </div>
+    
+    <script type="text/javascript">
+        var MAP_HEIGHT = 10;
+        var MAP_WIDTH = 10;
+
+        var TILE_TYPES = [
+            {name: "grassland", color: "rgb(182, 215, 168)", times: -1},
+            {name: "plains", color: "rgb(246, 178, 107)", times: 6},
+            {name: "swamp", color: "rgb(39, 78, 19)", times: 2},
+            {name: "volcano", color: "rgb(204, 0, 0)", times: 2}
+        ];
+
+
+        (function() {
+            var root = document.getElementById("root");
+            var map = [];
+
+            for(var i=0; i<MAP_HEIGHT; i++) {
+                var row = [];
+                for(var j=0; j<MAP_WIDTH; j++) {
+                    row.push(0);
+                }
+                map.push(row);
+            }
+
+            for(var index=0; index<TILE_TYPES.length; index++) {
+                for(var j=1; j<=TILE_TYPES[index].times; j++) {
+                    // Get random empty tile
+                    var tile = getRandomTile(MAP_WIDTH, MAP_HEIGHT);
+                    while(map[tile.x][tile.y] !== 0) {
+                        tile = getRandomTile(MAP_WIDTH, MAP_HEIGHT);
+                    }
+                    map[tile.x][tile.y] = index;
+                }
+            }
+
+            root.innerHTML += generateTable(map);
+        })();
+
+
+        // Choose a random tile between [0, width) and [0, height)
+        function getRandomTile(width, height) {
+            var x = Math.floor(Math.random() * width);
+            var y = Math.floor(Math.random() * height);
+            return {x: x, y: y};
+        }
+
+        // Generate HTML table from 2D array
+        function generateTable(map) {
+            var table = "<table style='border-collapse: collapse;'>";
+            for(var row=0; row<map.length; row++) {
+                table += "<tr>";
+                for(var col=0; col<map[row].length; col++) {
+                    var tile = TILE_TYPES[map[row][col]];
+                    table += `<td style="background: ${tile.color};border: 1px solid; width: 20px; height: 20px;"></td>`;
+                }
+                table += "</tr>";
+            }
+            return table + "</table>";
+        }
+    </script>
+</body>
+</html>
